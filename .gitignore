@@ -3,4 +3,4 @@ venv/
 db.sqlite3
 *.json
 staticfiles/
-__pychache__
+__pycache__/
