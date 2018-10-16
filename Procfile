@@ -1,1 +1,0 @@
-web: gunicorn OSTrino_API.wsgi
