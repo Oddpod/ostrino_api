@@ -77,6 +77,8 @@ DATABASES = {
     }
 }
 
+CORS_ORIGIN_ALLOW_ALL = True
+
 WSGI_APPLICATION = 'OSTrino_API.wsgi.application'
 
 # Password validation
