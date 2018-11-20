@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -24,3 +25,8 @@ class OST(models.Model):
     def __str__(self):
         return self.title
 
+
+class Playlist(models.Model):
+    name = models.CharField(max_length=100)
+    osts = models.ManyToManyField(OST, default=None, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)

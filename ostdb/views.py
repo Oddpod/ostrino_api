@@ -6,8 +6,9 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 
-from .models import OST, Show, Tag
-from .serializers import OSTSerializer, ShowSerializer, TagSerializer, CreateUserSerializer, UserLoginSerializer
+from .models import OST, Show, Tag, Playlist
+from .serializers import OSTSerializer, ShowSerializer, TagSerializer, CreateUserSerializer, UserLoginSerializer, \
+    PlaylistSerializer
 
 
 class OSTView(viewsets.ModelViewSet):
@@ -28,6 +29,11 @@ class TagView(viewsets.ModelViewSet):
 class CreateUserAPIView(CreateAPIView):
     queryset = User.objects.all()
     serializer_class = CreateUserSerializer
+
+
+class CreatePlaylist(viewsets.ModelViewSet):
+    queryset = Playlist.objects.all()
+    serializer_class = PlaylistSerializer
 
 
 class UserLoginAPIView(APIView):

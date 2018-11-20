@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CharField
 from rest_framework.serializers import ModelSerializer
 
-from .models import OST, Show, Tag
+from .models import OST, Show, Tag, Playlist
 
 
 class OSTSerializer(serializers.ModelSerializer):
@@ -24,6 +24,23 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
+
+
+class PlaylistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Playlist
+        fields = '__all__'
+
+    def create(self, validated_data):
+        name = validated_data['name']
+        user = validated_data['created_by']
+        osts = validated_data['osts']
+        new_playlist = Playlist(name=name, created_by=user)
+
+        if osts:
+            new_playlist.osts = osts
+        new_playlist.save()
+        return validated_data
 
 
 class CreateUserSerializer(ModelSerializer):
@@ -55,8 +72,8 @@ class CreateUserSerializer(ModelSerializer):
 
     def create(self, validated_data):
         username = validated_data['username']
-        email = validated_data['username']
-        password = validated_data['username']
+        email = validated_data['email2']
+        password = validated_data['password']
         new_user = User(
             username=username,
             email=email
@@ -99,7 +116,7 @@ class UserLoginSerializer(ModelSerializer):
         if user.exists() and user.count() == 1:
             user_obj = user.first()
         else:
-            raise ValidationError("This username/email is not valid.")
+            raise ValidationError("This username/email is not valid." + str(user))
 
         if user_obj:
             if not user_obj.check_password(password):
