@@ -28,5 +28,5 @@ class OST(models.Model):
 
 class Playlist(models.Model):
     name = models.CharField(max_length=100)
-    osts = models.ManyToManyField(OST, default=None, blank=True)
+    osts = models.ManyToManyField(OST, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)

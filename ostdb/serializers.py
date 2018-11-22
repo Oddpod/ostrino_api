@@ -36,9 +36,10 @@ class PlaylistSerializer(serializers.ModelSerializer):
         user = validated_data['created_by']
         osts = validated_data['osts']
         new_playlist = Playlist(name=name, created_by=user)
-
+        new_playlist.save()
         if osts:
-            new_playlist.osts = osts
+            new_playlist.osts.set(osts)
+
         new_playlist.save()
         return validated_data
 
