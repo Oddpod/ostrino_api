@@ -15,8 +15,8 @@ router.register('Playlists', views.CreatePlaylist)
 urlpatterns = [
     path('', include(router.urls)),
     # todo move views to router
-    url('^users/register/$', views.CreateUserAPIView.as_view(), name='register'),
-    url('^users/login/$', views.UserLoginAPIView.as_view(), name='login'),
-    url('^auth/obtain_token/$', obtain_jwt_token),
-    url('^auth/refresh_token/$', refresh_jwt_token),
+    url('^users/register', views.CreateUserAPIView.as_view(), name='register'),
+    url('^users/login', views.UserLoginAPIView.as_view(), name='login'),
+    url('^auth/obtain_token', obtain_jwt_token),
+    url('^auth/refresh_token', refresh_jwt_token),
 ]

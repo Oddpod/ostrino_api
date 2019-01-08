@@ -18,6 +18,7 @@ class OSTView(viewsets.ModelViewSet):
 
 class ShowView(viewsets.ModelViewSet):
     queryset = Show.objects.all()
+    permission_classes = [AllowAny]
     serializer_class = ShowSerializer
 
 
@@ -27,7 +28,8 @@ class TagView(viewsets.ModelViewSet):
 
 
 class CreateUserAPIView(CreateAPIView):
-    queryset = User.objects.all()
+    permission_classes = [AllowAny]
+    #queryset = User.objects.all()
     serializer_class = CreateUserSerializer
 
 
@@ -35,7 +37,7 @@ class CreatePlaylist(viewsets.ModelViewSet):
     queryset = Playlist.objects.all()
     serializer_class = PlaylistSerializer
 
-    def retrieve(self, request, pk=None):
+    def retrieve(self, request, pk=None, **kwargs):
         queryset = User.objects.all()
         user = get_object_or_404(queryset, pk=pk)
         playlists = Playlist.objects.filter(created_by=user)
