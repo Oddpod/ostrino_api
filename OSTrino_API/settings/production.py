@@ -1,5 +1,5 @@
 from .base import *
-from decouple import config
+from decouple import config, Csv
 
 STATIC_ROOT = config('STATIC')
 
