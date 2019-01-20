@@ -1,5 +1,4 @@
 from os import environ
-
 from .base import *
 from decouple import config, Csv
 

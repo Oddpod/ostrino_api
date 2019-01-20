@@ -1,5 +1,4 @@
 from .base import *
-from decouple import config
 
 DEBUG = True
 SECRET_KEY = 'jd$_5^4yy%k(k*8pyag8kt)6t$jsttugtiba*i(v#cv__i)+ys'
@@ -23,5 +22,3 @@ CORS_ORIGIN_WHITELIST = (
 )
 
 ALLOWED_HOSTS = ['.localhost', '127.0.0.1']
-
-os.path.join(PROJECT_ROOT, 'staticfiles')
