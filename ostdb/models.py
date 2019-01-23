@@ -10,7 +10,7 @@ class Show(models.Model):
 
 
 class Tag(models.Model):
-    tag = models.CharField(max_length=20, unique=True)
+    tag = models.SlugField(max_length=20, primary_key=True)
 
     def __str__(self):
         return self.tag
@@ -30,3 +30,6 @@ class Playlist(models.Model):
     name = models.CharField(max_length=100)
     osts = models.ManyToManyField(OST, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('created_by', 'name')

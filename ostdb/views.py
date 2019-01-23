@@ -7,13 +7,18 @@ from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 
 from .models import OST, Show, Tag, Playlist
-from .serializers import OSTSerializer, ShowSerializer, TagSerializer, CreateUserSerializer, UserLoginSerializer, \
-    PlaylistSerializer
+from .serializers import OSTSerializer, ShowSerializer, TagSerializer, CreateUserSerializer, \
+    UserLoginSerializer, PlaylistSerializer
 
 
 class OSTView(viewsets.ModelViewSet):
-    queryset = OST.objects.all()
+    queryset = OST.objects.all().select_related('show').prefetch_related('tags')
     serializer_class = OSTSerializer
+
+    def create(self, request, *args, **kwargs):
+        show = request.data['show']
+        Show.objects.update_or_create(name=show)
+        return super(OSTView, self).create(request, *args, **kwargs)
 
 
 class ShowView(viewsets.ModelViewSet):

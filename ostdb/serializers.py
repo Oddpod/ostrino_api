@@ -1,18 +1,12 @@
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.utils.text import slugify
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CharField
 from rest_framework.serializers import ModelSerializer
 
 from .models import OST, Show, Tag, Playlist
-
-
-class OSTSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OST
-        fields = ('title', 'show', 'tags', 'video_id')
-
 
 class ShowSerializer(serializers.ModelSerializer):
     class Meta:
@@ -23,6 +17,22 @@ class ShowSerializer(serializers.ModelSerializer):
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
+        fields = '__all__'
+
+    def create(self, validated_data):
+        print(validated_data)
+        return super(TagSerializer, self).create(validated_data)
+
+    def validate(self, attrs):
+        slugTag = slugify(attrs.get('tag'))
+        return super(TagSerializer, self).validate(attrs)
+
+
+class OSTSerializer(serializers.ModelSerializer):
+    show = serializers.SlugRelatedField(queryset=Show.objects.all(), slug_field='name')
+
+    class Meta:
+        model = OST
         fields = '__all__'
 
 
