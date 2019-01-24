@@ -20,6 +20,19 @@ class OSTView(viewsets.ModelViewSet):
         Show.objects.update_or_create(name=show)
         return super(OSTView, self).create(request, *args, **kwargs)
 
+    def get_queryset(self):
+        if not self.request.GET.get('ids', ''):
+            return OST.objects.all()
+        string_ids = self.request.GET.get('ids', '').replace('[', '').replace(']','')
+        ids = [int(s) for s in string_ids.split(',')]
+        if ids:
+            osts = OST.objects.filter(pk__in=ids)
+        else:
+            osts = OST.objects.all()
+        return osts
+
+
+
 
 class ShowView(viewsets.ModelViewSet):
     queryset = Show.objects.all()
@@ -38,15 +51,10 @@ class CreateUserAPIView(CreateAPIView):
     serializer_class = CreateUserSerializer
 
 
-class CreatePlaylist(viewsets.ModelViewSet):
-    queryset = Playlist.objects.all()
+class PlaylistView(viewsets.ModelViewSet):
+    queryset = Playlist.objects.filter(public=True)
+    permission_classes = [AllowAny]
     serializer_class = PlaylistSerializer
-
-    def retrieve(self, request, pk=None, **kwargs):
-        queryset = User.objects.all()
-        user = get_object_or_404(queryset, pk=pk)
-        playlists = Playlist.objects.filter(created_by=user)
-        return Response(playlists)
 
 
 class UserLoginAPIView(APIView):

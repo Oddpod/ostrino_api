@@ -9,7 +9,7 @@ router = routers.DefaultRouter()
 router.register('OSTs', views.OSTView)
 router.register('Shows', views.ShowView)
 router.register('Tags', views.TagView)
-router.register('Playlists', views.CreatePlaylist)
+router.register('Playlists', views.PlaylistView)
 
 
 urlpatterns = [
