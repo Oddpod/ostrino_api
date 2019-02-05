@@ -1,6 +1,6 @@
-from django.contrib.auth.models import User
 from rest_framework import viewsets
-from rest_framework.generics import CreateAPIView, get_object_or_404
+from django_filters import rest_framework as filters
+from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
@@ -11,9 +11,18 @@ from .serializers import OSTSerializer, ShowSerializer, TagSerializer, CreateUse
     UserLoginSerializer, PlaylistSerializer
 
 
+class OSTFilter(filters.FilterSet):
+    filt_title = filters.CharFilter(field_name='title', lookup_expr='icontains')
+
+    class Meta:
+        model = OST
+        fields = ['filt_title', 'show', 'tags']
+
 class OSTView(viewsets.ModelViewSet):
     queryset = OST.objects.all().select_related('show').prefetch_related('tags')
     serializer_class = OSTSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = OSTFilter
 
     def create(self, request, *args, **kwargs):
         show = request.data['show']
@@ -24,7 +33,13 @@ class OSTView(viewsets.ModelViewSet):
         return super(OSTView, self).create(request, *args, **kwargs)
 
     def get_queryset(self):
-        if not self.request.GET.get('ids', ''):
+        query = self.request.GET.get('query', '')
+        if query:
+            from django.db.models import Q
+            return OST.objects.filter(Q(title__icontains=query) |
+                                      Q(show__name__icontains=query) |
+                                      Q(tags__tag__icontains=query)).distinct()
+        elif not self.request.GET.get('ids', ''):
             return OST.objects.all()
         string_ids = self.request.GET.get('ids', '').replace('[', '').replace(']','')
         ids = [int(s) for s in string_ids.split(',')]
@@ -35,17 +50,17 @@ class OSTView(viewsets.ModelViewSet):
         return osts
 
 
-
-
 class ShowView(viewsets.ModelViewSet):
     queryset = Show.objects.all()
     permission_classes = [AllowAny]
     serializer_class = ShowSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
 
 
 class TagView(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
 
 
 class CreateUserAPIView(CreateAPIView):
@@ -58,6 +73,7 @@ class PlaylistView(viewsets.ModelViewSet):
     queryset = Playlist.objects.filter(public=True)
     permission_classes = [AllowAny]
     serializer_class = PlaylistSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
 
 
 class UserLoginAPIView(APIView):
