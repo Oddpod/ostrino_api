@@ -18,6 +18,9 @@ class OSTView(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         show = request.data['show']
         Show.objects.update_or_create(name=show)
+        tags = request.data['tags']
+        for tag in tags:
+            Tag.objects.get_or_create(tag=tag)
         return super(OSTView, self).create(request, *args, **kwargs)
 
     def get_queryset(self):
