@@ -7,9 +7,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': 'db.sqlite3',
-        'USER': 'U_HELLO',
-        'PASSWORD': 'hA8(scA@!fg3*sc&xaGh&6%-l<._&xCf',
-        'HOST': '127.0.0.1',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
         'PORT': '',
     }
 }

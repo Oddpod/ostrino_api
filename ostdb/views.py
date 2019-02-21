@@ -11,15 +11,25 @@ from .serializers import OSTSerializer, ShowSerializer, TagSerializer, CreateUse
     UserLoginSerializer, PlaylistSerializer
 
 
+def filter_show(queryset, _, value):
+    if not value:
+        return queryset
+
+    queryset = queryset.filter(show__name__exact=value)
+    return queryset
+
+
 class OSTFilter(filters.FilterSet):
     filt_title = filters.CharFilter(field_name='title', lookup_expr='icontains')
+    show = filters.CharFilter(method=filter_show)
 
     class Meta:
         model = OST
-        fields = ['filt_title', 'show', 'tags']
+        fields = ['id', 'filt_title', 'show', 'tags']
+
 
 class OSTView(viewsets.ModelViewSet):
-    queryset = OST.objects.all().select_related('show').prefetch_related('tags')
+    queryset = OST.objects.all().select_related('show')
     serializer_class = OSTSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = OSTFilter
