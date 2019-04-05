@@ -59,7 +59,7 @@ class TagView(viewsets.ModelViewSet):
 
 class CreateUserAPIView(CreateAPIView):
     permission_classes = [AllowAny]
-    #queryset = User.objects.all()
+    authentication_classes = []
     serializer_class = CreateUserSerializer
 
 
