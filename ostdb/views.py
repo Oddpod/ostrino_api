@@ -6,26 +6,10 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 
+from ostdb.custom_filters import OSTFilter, PlaylistFilter
 from .models import OST, Show, Tag, Playlist
 from .serializers import OSTSerializer, ShowSerializer, TagSerializer, CreateUserSerializer, \
     UserLoginSerializer, PlaylistSerializer
-
-
-def filter_show(queryset, _, value):
-    if not value:
-        return queryset
-
-    queryset = queryset.filter(show__name__exact=value)
-    return queryset
-
-
-class OSTFilter(filters.FilterSet):
-    filt_title = filters.CharFilter(field_name='title', lookup_expr='icontains')
-    show = filters.CharFilter(method=filter_show)
-
-    class Meta:
-        model = OST
-        fields = ['id', 'filt_title', 'show', 'tags']
 
 
 class OSTView(viewsets.ModelViewSet):
@@ -80,10 +64,22 @@ class CreateUserAPIView(CreateAPIView):
 
 
 class PlaylistView(viewsets.ModelViewSet):
-    queryset = Playlist.objects.filter(public=True)
+    queryset = Playlist.objects.all()
     permission_classes = [AllowAny]
     serializer_class = PlaylistSerializer
     filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = PlaylistFilter
+
+    def create(self, request, *args, **kwargs):
+        print(request.data)
+        return super(PlaylistView, self).create(request, *args, **kwargs)
+
+    def get_queryset(self):
+        get_public = self.request.GET.get('public', '')
+        if get_public:
+            return Playlist.objects.all()
+        # Return only users playlist by default
+        return Playlist.objects.filter(created_by=self.request.user.id)
 
 
 class UserLoginAPIView(APIView):

@@ -32,5 +32,8 @@ class Playlist(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     public = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.name + ', by: ' + str(self.created_by)
+
     class Meta:
         unique_together = ('created_by', 'name')

@@ -8,6 +8,7 @@ from rest_framework.serializers import ModelSerializer
 
 from .models import OST, Show, Tag, Playlist
 
+
 class ShowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Show
@@ -37,22 +38,23 @@ class OSTSerializer(serializers.ModelSerializer):
 
 
 class PlaylistSerializer(serializers.ModelSerializer):
-    created_by = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='username')
+    created_by = serializers.SlugRelatedField(slug_field='username', read_only=True)
 
     class Meta:
         model = Playlist
         fields = '__all__'
 
     def create(self, validated_data):
+        user = self.context['request'].user
         name = validated_data['name']
-        user = validated_data['created_by']
+        if not user:
+            user = validated_data['created_by']
         osts = validated_data['osts']
-        new_playlist = Playlist(name=name, created_by=user)
+        public = validated_data['public']
+        new_playlist = Playlist(name=name, created_by=user, public=public)
         new_playlist.save()
         if osts:
             new_playlist.osts.set(osts)
-
-        new_playlist.save()
         return validated_data
 
 
