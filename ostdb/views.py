@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from ostdb.custom_filters import OSTFilter, PlaylistFilter
 from .models import OST, Show, Tag, Playlist
 from .serializers import OSTSerializer, ShowSerializer, TagSerializer, CreateUserSerializer, \
-    UserLoginSerializer, PlaylistSerializer
+    UserLoginSerializer, PlaylistSerializer, DetailPlaylistSerializer
 
 
 class OSTView(viewsets.ModelViewSet):
@@ -73,6 +73,13 @@ class PlaylistView(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         print(request.data)
         return super(PlaylistView, self).create(request, *args, **kwargs)
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return PlaylistSerializer
+        if self.action == 'retrieve':
+            return DetailPlaylistSerializer
+        return PlaylistSerializer
 
     def get_queryset(self):
         get_public = self.request.GET.get('public', '')

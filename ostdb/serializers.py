@@ -58,6 +58,11 @@ class PlaylistSerializer(serializers.ModelSerializer):
         return validated_data
 
 
+# Override osts on detail view to get whole ost
+class DetailPlaylistSerializer(PlaylistSerializer):
+    osts = OSTSerializer(many=True, read_only=True)
+
+
 class CreateUserSerializer(ModelSerializer):
     email1 = serializers.EmailField(label='Email Address')
     email2 = serializers.EmailField(label='Confirm email')
