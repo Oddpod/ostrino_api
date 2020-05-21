@@ -19,8 +19,9 @@ class Tag(models.Model):
 class OST(models.Model):
     title = models.CharField(max_length=100)
     show = models.ForeignKey(Show, on_delete=models.CASCADE)
-    tags = models.ManyToManyField(Tag)
+    tags = models.ManyToManyField(Tag, blank=True)
     video_id = models.CharField(max_length=12, unique=True)
+    spotify_id = models.CharField(blank=True, max_length=50, null=True)
 
     def __str__(self):
         return self.title
