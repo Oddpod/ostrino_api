@@ -19,9 +19,9 @@ class OSTView(viewsets.ModelViewSet):
     filterset_class = OSTFilter
 
     def create(self, request, *args, **kwargs):
-        show = request.data['show']
+        show = request.data.get('show', "")
         Show.objects.update_or_create(name=show)
-        tags = request.data['tags']
+        tags = request.data.get('tags', [])
         for tag in tags:
             Tag.objects.get_or_create(tag=tag)
         return super(OSTView, self).create(request, *args, **kwargs)
