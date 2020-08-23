@@ -100,7 +100,7 @@ TEMPLATES = [
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.',
+        'ENGINE': 'django.db.backends.sqlite',
         'NAME': '',
         'USER': '',
         'PASSWORD': '',

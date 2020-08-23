@@ -30,7 +30,8 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class OSTSerializer(serializers.ModelSerializer):
-    show = serializers.SlugRelatedField(queryset=Show.objects.all(), slug_field='name')
+    show = serializers.SlugRelatedField(
+        queryset=Show.objects.all(), slug_field='name')
 
     class Meta:
         model = OST
@@ -46,19 +47,20 @@ class OSTSerializer(serializers.ModelSerializer):
 
 
 class PlaylistSerializer(serializers.ModelSerializer):
-    created_by = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    created_by = serializers.SlugRelatedField(
+        slug_field='username', read_only=True)
 
     class Meta:
         model = Playlist
         fields = '__all__'
 
     def create(self, validated_data):
-        user = self.context['request'].user
-        name = validated_data['name']
+        user = self.context.get('request').user
+        name = validated_data.get('name')
         if not user:
-            user = validated_data['created_by']
-        osts = validated_data['osts']
-        public = validated_data['public']
+            user = validated_data.get('created_by')
+        osts = validated_data.get('osts')
+        public = validated_data.get('public')
         new_playlist = Playlist(name=name, created_by=user, public=public)
         new_playlist.save()
         if osts:
@@ -84,7 +86,7 @@ class CreateUserSerializer(ModelSerializer):
             'password',
         ]
         extra_kwargs = {"password":
-                            {"write_only": True}
+                        {"write_only": True}
                         }
 
     def validate_email2(self, value):
@@ -114,7 +116,8 @@ class CreateUserSerializer(ModelSerializer):
 class UserLoginSerializer(ModelSerializer):
     token = CharField(allow_blank=True, read_only=True)
     username = CharField(required=False, allow_blank=True)
-    email = serializers.EmailField(label='Email Address', required=False, allow_blank=True)
+    email = serializers.EmailField(
+        label='Email Address', required=False, allow_blank=True)
 
     class Meta:
         model = User
@@ -139,12 +142,13 @@ class UserLoginSerializer(ModelSerializer):
         user = User.objects.filter(
             Q(email=email) |
             Q(username=username)
-            ).distinct()
+        ).distinct()
         user = user.exclude(email__isnull=True)
         if user.exists() and user.count() == 1:
             user_obj = user.first()
         else:
-            raise ValidationError("This username/email is not valid." + str(user))
+            raise ValidationError(
+                "This username/email is not valid." + str(user))
 
         if user_obj:
             if not user_obj.check_password(password):
