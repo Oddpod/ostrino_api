@@ -36,6 +36,14 @@ class OSTSerializer(serializers.ModelSerializer):
         model = OST
         fields = '__all__'
 
+    def validate_empty_values(self, data):
+        # Ost has to have either a video id or a spotify id to be valid
+        if data.get("spotify_id") or data.get("video_id"):
+            return super().validate_empty_values(data)
+        else:
+            raise ValidationError(
+                "A spotify id or an video id has to be specified")
+
 
 class PlaylistSerializer(serializers.ModelSerializer):
     created_by = serializers.SlugRelatedField(slug_field='username', read_only=True)
@@ -56,14 +64,6 @@ class PlaylistSerializer(serializers.ModelSerializer):
         if osts:
             new_playlist.osts.set(osts)
         return validated_data
-
-    def validate_empty_values(self, data):
-        # Ost has to have either a video id or a spotify id to be valid
-        if data.get("spotify_id") or data.get("video_id"):
-            return super().validate_empty_values(data)
-        else: 
-            raise ValidationError("A spotify id or an video id has to be specified")
-        
 
 
 # Override osts on detail view to get whole ost
