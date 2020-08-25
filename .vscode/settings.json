@@ -4,5 +4,5 @@
     "files.watcherExclude": {
         "**/env/**": true
     },
-    "python.pythonPath": "env/bin/python"
+    "python.pythonPath": "C:\\Users\\osande\\AppData\\Local\\Programs\\Python\\Python38-32\\python.exe"
 }

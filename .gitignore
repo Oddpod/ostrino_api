@@ -4,6 +4,6 @@ db.sqlite3
 data.json
 staticfiles/
 __pycache__/
-.env
+.env*
 *.pyc
 env

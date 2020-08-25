@@ -140,9 +140,7 @@ class UserLoginSerializer(ModelSerializer):
             raise ValidationError("Please enter a username or email.")
 
         user = User.objects.filter(
-            Q(email=email) |
-            Q(username=username)
-        ).distinct()
+            Q(email=email) | Q(username=username)).distinct()
         user = user.exclude(email__isnull=True)
         if user.exists() and user.count() == 1:
             user_obj = user.first()

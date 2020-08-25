@@ -1,27 +1,23 @@
 from os import environ
 from .base import *
-from decouple import config, Csv
 
 # Normally you should not import ANYTHING from Django directly
 # into your settings, but ImproperlyConfigured is an exception.
 from django.core.exceptions import ImproperlyConfigured
 
-STATIC_ROOT = config('STATIC')
-
-SECRET_KEY = config('SECRET_KEY')
-
-DEBUG = False
-
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
+ALLOWED_HOSTS = []
+ALLOWED_HOSTS_ENV = environ.get('ALLOWED_HOSTS')
+if ALLOWED_HOSTS_ENV:
+    ALLOWED_HOSTS.extend(ALLOWED_HOSTS_ENV.split(","))
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST'),
-        'PORT': '',
+        'NAME': environ.get('DB_NAME'),
+        'USER': environ.get('DB_USER'),
+        'PASSWORD': environ.get('DB_PASSWORD'),
+        'HOST': environ.get('SQL_HOST'),
+        'PORT': environ.get('SQL_PORT'),
     }
 }
 

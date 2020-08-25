@@ -10,8 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 import datetime
+from os import environ
 from os.path import normpath, join, dirname, abspath, basename
 from sys import path
+
+DEBUG = bool(int((environ.get("DEBUG", 0))))
+
+SECRET_KEY = environ.get('SECRET_KEY', "changeme")
 
 ########## PATH CONFIGURATION
 # Absolute filesystem path to the Django project directory:
@@ -111,22 +116,9 @@ DATABASES = {
 
 
 ########## STATIC FILE CONFIGURATION
-# See: https://docs.djangoproject.com/en/dev/ref/settings/#static-root
-STATIC_ROOT = normpath(join(SITE_ROOT, 'assets'))
+STATIC_URL = "/staticfiles/"
+STATIC_ROOT = normpath(join(SITE_ROOT, "staticfiles"))
 
-# See: https://docs.djangoproject.com/en/dev/ref/settings/#static-url
-STATIC_URL = '/static/'
-
-# See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
-STATICFILES_DIRS = (
-    join(SITE_ROOT, 'OSTrino_API/static'),
-)
-
-# See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-)
 ########## END STATIC FILE CONFIGURATION
 
 
