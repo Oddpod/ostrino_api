@@ -68,6 +68,7 @@ jobs:
         echo POSTGRES_DB=${{ secrets.DB_NAME }} >> .env.prod.db
         echo WEB_IMAGE=$(echo ${{ env.WEB_IMAGE }} | tr '[:upper:]' '[:lower:]') >> .env.prod
         echo NGINX_IMAGE=$(echo ${{ env.NGINX_IMAGE }} | tr '[:upper:]' '[:lower:]') >> .env.prod
+        echo PACKAGE_TOKEN=${{secrets.PACKAGE_TOKEN}} >> .env.prod
     - name: Add the private SSH key to the ssh-agent
       run: |
         mkdir -p ~/.ssh/
@@ -86,7 +87,7 @@ jobs:
           cd /home/deploy/app
           source .env.prod
           source .env.prod.db
-          docker login docker.pkg.github.com -u Oddpod -p ce70f1d4a3a906ce8ac24caa6870fd29f2273d30
+          docker login docker.pkg.github.com -u Oddpod -p $PACKAGE_TOKEN
           docker pull $WEB_IMAGE
           docker pull $NGINX_IMAGE
           docker-compose -f docker-compose.prod.yml up -d
