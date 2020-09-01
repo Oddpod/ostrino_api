@@ -30,9 +30,9 @@ jobs:
         echo POSTGRES_DB=${{ secrets.DB_NAME }} >> .env.prod.db
     - name: Set environment variables
       run: |
-        echo ::set-env name=WEB_IMAGE::${"${{ env.WEB_IMAGE }}",,}
-        echo ::set-env name=NGINX_IMAGE::${"{{ env.NGINX_IMAGE }}",,}
-        echo ::set-env name=DB_IMAGE::${"${{ env.DB_IMAGE }}",,}
+        echo ::set-env name=WEB_IMAGE::$(echo ${{ env.WEB_IMAGE }} | tr '[:upper:]' '[:lower:]')
+        echo ::set-env name=NGINX_IMAGE::$(echo ${{ env.NGINX_IMAGE }} | tr '[:upper:]' '[:lower:]')
+        echo ::set-env name=DB_IMAGE::$(echo ${{ env.DB_IMAGE }} | tr '[:upper:]' '[:lower:]')
     - name: Log in to GitHub Packages
       run: echo ${GITHUB_TOKEN} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
       env:
