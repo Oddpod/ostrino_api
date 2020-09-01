@@ -10,6 +10,7 @@ env:
   DB_IMAGE: docker.pkg.github.com/$GITHUB_REPOSITORY/postgres
 
 jobs:
+  
   build:
     name: Build Docker Images
     runs-on: ubuntu-latest
