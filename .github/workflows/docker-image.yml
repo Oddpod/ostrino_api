@@ -68,22 +68,20 @@ jobs:
         echo POSTGRES_DB=${{ secrets.DB_NAME }} >> .env.prod.db
         echo WEB_IMAGE=$(echo ${{ env.WEB_IMAGE }} | tr '[:upper:]' '[:lower:]') >> .env.prod
         echo NGINX_IMAGE=$(echo ${{ env.NGINX_IMAGE }} | tr '[:upper:]' '[:lower:]') >> .env.prod
-    - name: Create SSH key
+    - name: Add the private SSH key to the ssh-agent
       run: |
         mkdir -p ~/.ssh/
         ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-        ssh-add - <<< "${{secrets.SSH_PRIVATE_KEY}}"
         echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-      shell: bash
+        ssh-add - <<< "${{secrets.SSH_PRIVATE_KEY}}"
       env:
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         SSH_KNOWN_HOSTS: ${{secrets.SSH_KNOWN_HOSTS}}
-        SSH_KEY_PATH: ${{ github.workspace }}/../private.key
     - name: Build and deploy images
       env:
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
       run: |
-        scp  -o StrictHostKeyChecking=no -r ./.env ./docker-compose.prod.yml ${{ secrets.HOST_DOMAIN }}:/app
+        scp  -o StrictHostKeyChecking=no -r ./.env.prod ./.env.prod.db ./docker-compose.prod.yml ${{ secrets.HOST_DOMAIN }}:/home/deploy/app
         ssh -o StrictHostKeyChecking=no {{ secrets.HOST_DOMAIN }} << 'ENDSSH'
           cd /app
           source .env.prod
