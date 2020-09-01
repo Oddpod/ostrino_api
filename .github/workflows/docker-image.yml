@@ -37,20 +37,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Pull images
+        run: |
+          docker pull ${{ env.WEB_IMAGE }} || true
+          docker pull ${{ env.NGINX_IMAGE }} || true
+          docker pull ${{ env.POSTGRES_IMAGE }} || true
+          - name: Build images
           run: |
-            docker pull ${{ env.WEB_IMAGE }} || true
-            docker pull ${{ env.NGINX_IMAGE }} || true
-            docker pull ${{ env.POSTGRES_IMAGE }} || true
-            - name: Build images
-            run: |
-              docker-compose -f docker-compose.ci.yml build
+            docker-compose -f docker-compose.ci.yml build
       - name: Push images
-          run: |
-            docker push ${{ env.WEB_IMAGE }}
-            docker push ${{ env.NGINX_IMAGE }}
-            docker push ${{ env.POSTGRES_IMAGE }}
+        run: |
+          docker push ${{ env.WEB_IMAGE }}
+          docker push ${{ env.NGINX_IMAGE }}
+          docker push ${{ env.POSTGRES_IMAGE }}
 
-deploy:
+  deploy:
     name: Deploy to Linode
     runs-on: ubuntu-latest
     needs: build
@@ -69,6 +69,9 @@ deploy:
           echo POSTGRES_USER=${{ secrets.DB_USER }} >> .env.prod.db
           echo POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env.prod.db
           echo POSTGRES_DB=${{ secrets.DB_NAME }} >> .env.prod.db
+          echo WEB_IMAGE=${{ env.WEB_IMAGE }} >> .env.prod
+          echo NGINX_IMAGE=${{ env.NGINX_IMAGE }} >> .env.prod
+          echo POSTGRES_IMAGE=${{ env.POSTGRES_IMAGE }} >> .env.prod
       - name: Create SSH key
         run: |
           mkdir -p ~/.ssh/
@@ -83,14 +86,14 @@ deploy:
       - name: Build and deploy images
         env:
           REMOTE_HOST: ${{secrets.REMOTE_HOST}}
-      run: |
-        scp  -o StrictHostKeyChecking=no -r ./.env ./docker-compose.prod.yml ${{ secrets.HOST_DOMAIN }}:/app
-        ssh -o StrictHostKeyChecking=no {{ secrets.HOST_DOMAIN }} << 'ENDSSH'
-          cd /app
-          source .env
-          docker login docker.pkg.github.com -u Oddpod -p ce70f1d4a3a906ce8ac24caa6870fd29f2273d30
-          docker pull $WEB_IMAGE
-          docker pull $NGINX_IMAGE
-          docker pull $POSTGRES_IMAGE
-          docker-compose -f docker-compose.prod.yml up -d
-        ENDSSH
+        run: |
+          scp  -o StrictHostKeyChecking=no -r ./.env ./docker-compose.prod.yml ${{ secrets.HOST_DOMAIN }}:/app
+          ssh -o StrictHostKeyChecking=no {{ secrets.HOST_DOMAIN }} << 'ENDSSH'
+            cd /app
+            source .env.prod
+            docker login docker.pkg.github.com -u Oddpod -p ce70f1d4a3a906ce8ac24caa6870fd29f2273d30
+            docker pull $WEB_IMAGE
+            docker pull $NGINX_IMAGE
+            docker pull $POSTGRES_IMAGE
+            docker-compose -f docker-compose.prod.yml up -d
+          ENDSSH
