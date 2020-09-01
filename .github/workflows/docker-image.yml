@@ -71,17 +71,17 @@ jobs:
     - name: Create SSH key
       run: |
         mkdir -p ~/.ssh/
-        echo "$SSH_PRIVATE_KEY" > ../private.key
-        sudo chmod 600 ../private.key
+        ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+        ssh-add - <<< "${{secrets.SSH_PRIVATE_KEY}}""
         echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
       shell: bash
       env:
-        SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         SSH_KNOWN_HOSTS: ${{secrets.SSH_KNOWN_HOSTS}}
         SSH_KEY_PATH: ${{ github.workspace }}/../private.key
     - name: Build and deploy images
       env:
-        REMOTE_HOST: ${{secrets.REMOTE_HOST}}
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
       run: |
         scp  -o StrictHostKeyChecking=no -r ./.env ./docker-compose.prod.yml ${{ secrets.HOST_DOMAIN }}:/app
         ssh -o StrictHostKeyChecking=no {{ secrets.HOST_DOMAIN }} << 'ENDSSH'
