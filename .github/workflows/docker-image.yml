@@ -81,8 +81,8 @@ jobs:
       env:
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
       run: |
-        scp  -o StrictHostKeyChecking=no -r ./.env.prod ./.env.prod.db ./docker-compose.prod.yml deploy@"${{ secrets.HOST_DOMAIN }}":/home/deploy/app
-        ssh -o StrictHostKeyChecking=no {{ secrets.HOST_DOMAIN }} << 'ENDSSH'
+        scp  -o StrictHostKeyChecking=no -r ./.env.prod ./.env.prod.db ./docker-compose.prod.yml deploy@${{ secrets.HOST_DOMAIN }}:/home/deploy/app
+        ssh -o StrictHostKeyChecking=no deploy@${{ secrets.HOST_DOMAIN }} << 'ENDSSH'
           cd /app
           source .env.prod
           source .env.prod.db
