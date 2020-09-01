@@ -66,8 +66,8 @@ jobs:
         echo POSTGRES_USER=${{ secrets.DB_USER }} >> .env.prod.db
         echo POSTGRES_PASSWORD="${{ secrets.DB_PASSWORD }}" >> .env.prod.db
         echo POSTGRES_DB=${{ secrets.DB_NAME }} >> .env.prod.db
-        echo WEB_IMAGE=$(echo ${{ env.WEB_IMAGE }} | tr '[:upper:]' '[:lower:]') >> .env.prod
-        echo NGINX_IMAGE=$(echo ${{ env.NGINX_IMAGE }} | tr '[:upper:]' '[:lower:]') >> .env.prod
+        echo WEB_IMAGE=$(echo ${{ env.WEB_IMAGE }} | tr '[:upper:]' '[:lower:]') >> .env
+        echo NGINX_IMAGE=$(echo ${{ env.NGINX_IMAGE }} | tr '[:upper:]' '[:lower:]') >> .env
         echo PACKAGE_TOKEN=${{secrets.PACKAGE_TOKEN}} >> .env.prod
     - name: Add the private SSH key to the ssh-agent
       run: |
@@ -82,12 +82,12 @@ jobs:
       env:
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
       run: |
-        scp  -o StrictHostKeyChecking=no -r ./.env.prod ./.env.prod.db ./docker-compose.prod.yml deploy@${{ secrets.HOST_DOMAIN }}:/home/deploy/app
+        scp  -o StrictHostKeyChecking=no -r ./.env ./.env.prod ./.env.prod.db ./docker-compose.prod.yml deploy@${{ secrets.HOST_DOMAIN }}:/home/deploy/app
         ssh -o StrictHostKeyChecking=no deploy@${{ secrets.HOST_DOMAIN }} << 'ENDSSH'
           cd /home/deploy/app
           source .env.prod
           docker login docker.pkg.github.com -u Oddpod -p $PACKAGE_TOKEN
           docker pull $WEB_IMAGE
           docker pull $NGINX_IMAGE
-          docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d
+          docker-compose -f docker-compose.prod.yml up -d
         ENDSSH
