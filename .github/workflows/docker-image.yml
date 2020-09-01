@@ -57,7 +57,7 @@ jobs:
     - name: Add environment variables to .env.prod files
       run: |
         echo DATABASE=postgres >> .env.prod
-        printf "%q" SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env.prod
+        printf "%q" SECRET_KEY="${{ secrets.SECRET_KEY }}" >> .env.prod
         echo DB_NAME=${{ secrets.DB_NAME }} >> .env.prod
         echo DB_USER=${{ secrets.DB_USER }} >> .env.prod
         echo DB_PASSWORD="${{ secrets.DB_PASSWORD }}" >> .env.prod
