@@ -86,7 +86,6 @@ jobs:
         ssh -o StrictHostKeyChecking=no deploy@${{ secrets.HOST_DOMAIN }} << 'ENDSSH'
           cd /home/deploy/app
           source .env.prod
-          source .env.prod.db
           docker login docker.pkg.github.com -u Oddpod -p $PACKAGE_TOKEN
           docker pull $WEB_IMAGE
           docker pull $NGINX_IMAGE
