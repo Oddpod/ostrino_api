@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Master
-          uses: actions/checkout@v2
+        uses: actions/checkout@v2
       - name: Add environment variables to .env.prod files
         run: |
           echo DATABASE=postgres >> .env.prod
@@ -57,7 +57,7 @@ jobs:
     needs: build
     steps:
       - name: Checkout master
-          uses: actions/checkout@v2
+        uses: actions/checkout@v2
       - name: Add environment variables to .env.prod files
         run: |
           echo DATABASE=postgres >> .env.prod
