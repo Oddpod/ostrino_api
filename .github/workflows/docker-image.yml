@@ -7,7 +7,6 @@ on:
 env:
   WEB_IMAGE: docker.pkg.github.com/$GITHUB_REPOSITORY/web
   NGINX_IMAGE: docker.pkg.github.com/$GITHUB_REPOSITORY/nginx
-  DB_IMAGE: docker.pkg.github.com/$GITHUB_REPOSITORY/postgres
 
 jobs:
   build:
@@ -32,7 +31,6 @@ jobs:
       run: |
         echo ::set-env name=WEB_IMAGE::$(echo ${{ env.WEB_IMAGE }} | tr '[:upper:]' '[:lower:]')
         echo ::set-env name=NGINX_IMAGE::$(echo ${{ env.NGINX_IMAGE }} | tr '[:upper:]' '[:lower:]')
-        echo ::set-env name=DB_IMAGE::$(echo ${{ env.DB_IMAGE }} | tr '[:upper:]' '[:lower:]')
     - name: Log in to GitHub Packages
       run: echo ${GITHUB_TOKEN} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
       env:
@@ -41,7 +39,6 @@ jobs:
       run: |
         docker pull ${{ env.WEB_IMAGE }} || true
         docker pull ${{ env.NGINX_IMAGE }} || true
-        docker pull ${{ env.DB_IMAGE }} || true
     - name: Build images
       run: |
         docker-compose -f docker-compose.ci.yml build
@@ -49,7 +46,6 @@ jobs:
       run: |
         docker push ${{ env.WEB_IMAGE }}
         docker push ${{ env.NGINX_IMAGE }}
-        docker push ${{ env.DB_IMAGE }}
 
   deploy:
     name: Deploy to Linode
@@ -70,9 +66,8 @@ jobs:
         echo POSTGRES_USER=${{ secrets.DB_USER }} >> .env.prod.db
         echo POSTGRES_PASSWORD="${{ secrets.DB_PASSWORD }}" >> .env.prod.db
         echo POSTGRES_DB=${{ secrets.DB_NAME }} >> .env.prod.db
-        echo WEB_IMAGE=${"${{ env.WEB_IMAGE }}",,} >> .env.prod
-        echo NGINX_IMAGE=${"${{ env.NGINX_IMAGE }}",,} >> .env.prod
-        echo DB_IMAGE=${"${{ env.DB_IMAGE }}",,} >> .env.prod
+        echo WEB_IMAGE=$(echo ${{ env.WEB_IMAGE }} | tr '[:upper:]' '[:lower:]') >> .env.prod
+        echo NGINX_IMAGE=$(echo ${{ env.NGINX_IMAGE }} | tr '[:upper:]' '[:lower:]') >> .env.prod
     - name: Create SSH key
       run: |
         mkdir -p ~/.ssh/
@@ -95,6 +90,5 @@ jobs:
           docker login docker.pkg.github.com -u Oddpod -p ce70f1d4a3a906ce8ac24caa6870fd29f2273d30
           docker pull $WEB_IMAGE
           docker pull $NGINX_IMAGE
-          docker pull $DB_IMAGE
           docker-compose -f docker-compose.prod.yml up -d
         ENDSSH
