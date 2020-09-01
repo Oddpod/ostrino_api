@@ -1,16 +1,74 @@
-name: Docker Image CI
+name: Build and Deploy
 
 on:
   push:
-    branches: [ dockerization ]
-  pull_request:
-    branches: [ dockerization ]
+    branches: [dockerization]
+
+env:
+  WEB_IMAGE: docker.pkg.github.com/$GITHUB_REPOSITORY/web
+  NGINX_IMAGE: docker.pkg.github.com/$GITHUB_REPOSITORY/nginx
+  POSTGRES_IMAGE: docker.pkg.github.com/$GITHUB_REPOSITORY/postgres
 
 jobs:
   build:
+    name: Build Docker Images
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2 
+      - uses: actions/checkout@v2
+      - name: Add environment variables to .env.prod
+        run: |
+          echo DATABASE=postrgres >> .env.prod
+          echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env.prod
+          echo DB_NAME=${{ secrets.DB_NAME }} >> .env.prod
+          echo DB_USER=${{ secrets.DB_USER }} >> .env.prod
+          echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env.prod
+          echo SQL_HOST=${{ secrets.SQL_HOST }} >> .env.prod
+          echo SQL_PORT=${{ secrets.SQL_PORT }} >> .env.prod
+          echo POSTGRES_USER=${{ secrets.DB_USER }} >> .env.prod.db
+          echo POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env.prod.db
+          echo POSTGRES_DB=${{ secrets.DB_NAME }} >> .env.prod.db
+      - name: Set environment variables
+        run: |
+          echo ::set-env name=WEB_IMAGE::${{ env.WEB_IMAGE }}
+          echo ::set-env name=NGINX_IMAGE::${{ env.NGINX_IMAGE }}
+          echo ::set-env name=POSTGRES_IMAGE::${{ env.POSTGRES_IMAGE }}
+      - name: Log in to GitHub Packages
+        run: echo ${GITHUB_TOKEN} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Pull images
+          run: |
+            docker pull ${{ env.WEB_IMAGE }} || true
+            docker pull ${{ env.NGINX_IMAGE }} || true
+            docker pull ${{ env.POSTGRES_IMAGE }} || true
+            - name: Build images
+            run: |
+              docker-compose -f docker-compose.ci.yml build
+      - name: Push images
+          run: |
+            docker push ${{ env.WEB_IMAGE }}
+            docker push ${{ env.NGINX_IMAGE }}
+            docker push ${{ env.POSTGRES_IMAGE }}
+
+deploy:
+    name: Deploy to Linode
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v2
+      - name: Add environment variables to .env files
+        run: |
+          echo DATABASE=postrgres >> .env.prod
+          echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env.prod
+          echo DB_NAME=${{ secrets.DB_NAME }} >> .env.prod
+          echo DB_USER=${{ secrets.DB_USER }} >> .env.prod
+          echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env.prod
+          echo SQL_HOST=${{ secrets.SQL_HOST }} >> .env.prod
+          echo SQL_PORT=${{ secrets.SQL_PORT }} >> .env.prod
+          echo POSTGRES_USER=${{ secrets.DB_USER }} >> .env.prod.db
+          echo POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env.prod.db
+          echo POSTGRES_DB=${{ secrets.DB_NAME }} >> .env.prod.db
       - name: Create SSH key
         run: |
           mkdir -p ~/.ssh/
@@ -22,9 +80,17 @@ jobs:
           SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
           SSH_KNOWN_HOSTS: ${{secrets.SSH_KNOWN_HOSTS}}
           SSH_KEY_PATH: ${{ github.workspace }}/../private.key
-      - name: Docker deploy
+      - name: Build and deploy images
         env:
           REMOTE_HOST: ${{secrets.REMOTE_HOST}}
-        run: |
-          ls /
-          docker-compose -f docker-compose.prod.yml -H $REMOTE_HOST up -d
+      run: |
+        scp  -o StrictHostKeyChecking=no -r ./.env ./docker-compose.prod.yml ${{ secrets.HOST_DOMAIN }}:/app
+        ssh -o StrictHostKeyChecking=no {{ secrets.HOST_DOMAIN }} << 'ENDSSH'
+          cd /app
+          source .env
+          docker login docker.pkg.github.com -u Oddpod -p ce70f1d4a3a906ce8ac24caa6870fd29f2273d30
+          docker pull $WEB_IMAGE
+          docker pull $NGINX_IMAGE
+          docker pull $POSTGRES_IMAGE
+          docker-compose -f docker-compose.prod.yml up -d
+        ENDSSH
