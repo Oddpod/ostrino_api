@@ -83,7 +83,7 @@ jobs:
       run: |
         scp  -o StrictHostKeyChecking=no -r ./.env.prod ./.env.prod.db ./docker-compose.prod.yml deploy@${{ secrets.HOST_DOMAIN }}:/home/deploy/app
         ssh -o StrictHostKeyChecking=no deploy@${{ secrets.HOST_DOMAIN }} << 'ENDSSH'
-          cd /app
+          cd /home/deploy/app
           source .env.prod
           source .env.prod.db
           docker login docker.pkg.github.com -u Oddpod -p ce70f1d4a3a906ce8ac24caa6870fd29f2273d30
