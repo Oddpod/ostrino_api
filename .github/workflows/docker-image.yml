@@ -1,0 +1,93 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [dockerization]
+
+env:
+  WEB_IMAGE: docker.pkg.github.com/$GITHUB_REPOSITORY/web
+  NGINX_IMAGE: docker.pkg.github.com/$GITHUB_REPOSITORY/nginx
+
+jobs:
+  build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Master
+      uses: actions/checkout@v2
+    - name: Add environment variables to .env.prod files
+      run: |
+        echo DATABASE=postgres >> .env.prod
+        echo SECRET_KEY="${{ secrets.SECRET_KEY }}" >> .env.prod
+        echo DB_NAME=${{ secrets.DB_NAME }} >> .env.prod
+        echo DB_USER=${{ secrets.DB_USER }} >> .env.prod
+        echo DB_PASSWORD="${{ secrets.DB_PASSWORD }}" >> .env.prod
+        echo SQL_HOST=${{ secrets.SQL_HOST }} >> .env.prod
+        echo SQL_PORT=${{ secrets.SQL_PORT }} >> .env.prod
+        echo POSTGRES_USER=${{ secrets.DB_USER }} >> .env.prod.db
+        echo POSTGRES_PASSWORD="${{ secrets.DB_PASSWORD }}" >> .env.prod.db
+        echo POSTGRES_DB=${{ secrets.DB_NAME }} >> .env.prod.db
+    - name: Set environment variables
+      run: |
+        echo ::set-env name=WEB_IMAGE::$(echo ${{ env.WEB_IMAGE }} | tr '[:upper:]' '[:lower:]')
+        echo ::set-env name=NGINX_IMAGE::$(echo ${{ env.NGINX_IMAGE }} | tr '[:upper:]' '[:lower:]')
+    - name: Log in to GitHub Packages
+      run: echo ${GITHUB_TOKEN} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Pull images
+      run: |
+        docker pull ${{ env.WEB_IMAGE }} || true
+        docker pull ${{ env.NGINX_IMAGE }} || true
+    - name: Build images
+      run: |
+        docker-compose -f docker-compose.ci.yml build
+    - name: Push images
+      run: |
+        docker push ${{ env.WEB_IMAGE }}
+        docker push ${{ env.NGINX_IMAGE }}
+
+  deploy:
+    name: Deploy to Linode
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - name: Checkout master
+      uses: actions/checkout@v2
+    - name: Add environment variables to .env.prod files
+      run: |
+        echo DATABASE=postgres >> .env.prod
+        printf "%q" SECRET_KEY="${{ secrets.SECRET_KEY }}" >> .env.prod
+        echo DB_NAME=${{ secrets.DB_NAME }} >> .env.prod
+        echo DB_USER=${{ secrets.DB_USER }} >> .env.prod
+        echo DB_PASSWORD="${{ secrets.DB_PASSWORD }}" >> .env.prod
+        echo SQL_HOST=${{ secrets.SQL_HOST }} >> .env.prod
+        echo SQL_PORT=${{ secrets.SQL_PORT }} >> .env.prod
+        echo POSTGRES_USER=${{ secrets.DB_USER }} >> .env.prod.db
+        echo POSTGRES_PASSWORD="${{ secrets.DB_PASSWORD }}" >> .env.prod.db
+        echo POSTGRES_DB=${{ secrets.DB_NAME }} >> .env.prod.db
+        echo WEB_IMAGE=$(echo ${{ env.WEB_IMAGE }} | tr '[:upper:]' '[:lower:]') >> .env
+        echo NGINX_IMAGE=$(echo ${{ env.NGINX_IMAGE }} | tr '[:upper:]' '[:lower:]') >> .env
+        echo PACKAGE_TOKEN=${{secrets.PACKAGE_TOKEN}} >> .env.prod
+    - name: Add the private SSH key to the ssh-agent
+      run: |
+        mkdir -p ~/.ssh/
+        ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+        echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+        ssh-add - <<< "${{secrets.SSH_PRIVATE_KEY}}"
+      env:
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        SSH_KNOWN_HOSTS: ${{secrets.SSH_KNOWN_HOSTS}}
+    - name: Build and deploy images
+      env:
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      run: |
+        scp  -o StrictHostKeyChecking=no -r ./.env ./.env.prod ./.env.prod.db ./docker-compose.prod.yml deploy@${{ secrets.HOST_DOMAIN }}:/home/deploy/app
+        ssh -o StrictHostKeyChecking=no deploy@${{ secrets.HOST_DOMAIN }} << 'ENDSSH'
+          cd /home/deploy/app
+          source .env.prod
+          docker login docker.pkg.github.com -u Oddpod -p $PACKAGE_TOKEN
+          docker pull $WEB_IMAGE
+          docker pull $NGINX_IMAGE
+          docker-compose -f docker-compose.prod.yml up -d
+        ENDSSH

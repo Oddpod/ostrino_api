@@ -2,9 +2,7 @@ version: "3.7"
 
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
+    image: "${WEB_IMAGE}"
     command: gunicorn OSTrino_API.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - ./:/usr/src/app
@@ -14,14 +12,13 @@ services:
     env_file:
       - ./.env.prod
     environment:
-      - DEBUG=1
+      - DEBUG=0
       - DJANGO_SETTINGS_MODULE=OSTrino_API.settings.production
     depends_on:
       - db
 
   proxy:
-    build:
-      context: ./nginx
+    image: "${NGINX_IMAGE}"
     volumes:
       - static_volume:/home/app/web/staticfiles
     ports:
