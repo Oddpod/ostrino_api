@@ -32,6 +32,13 @@ services:
       - ./.env.prod.db
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+  
+  db-init:
+    build:
+      context: .
+      dockerfile: docker/db-init/Dockerfile
+    depends_on:
+      - db
 
 volumes:
   static_volume:
