@@ -41,7 +41,7 @@ jobs:
         docker pull ${{ env.NGINX_IMAGE }} --no-cache=true|| true
     - name: Build images
       run: |
-        docker-compose -f docker-compose.ci.yml build --no-cache=true
+        docker-compose -f docker-compose.ci.yml build --force-recreate
     - name: Push images
       run: |
         docker push ${{ env.WEB_IMAGE }}
