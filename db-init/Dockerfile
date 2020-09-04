@@ -9,5 +9,6 @@ WORKDIR /code/
 RUN pip install -r requirements.txt
 
 COPY . /code/
+RUN ["chmod", "x", "./db-init/*.sh"]
 
 CMD [ "./db-init/wait-for-postgres.sh", "db", "./db-init/startup.sh" ]
