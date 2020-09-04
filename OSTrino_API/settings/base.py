@@ -18,6 +18,12 @@ DEBUG = bool(int((environ.get("DEBUG", 0))))
 
 SECRET_KEY = environ.get('SECRET_KEY', "changeme")
 
+ALLOWED_HOSTS_ENV = environ.get('ALLOWED_HOSTS')
+if ALLOWED_HOSTS_ENV:
+    ALLOWED_HOSTS.extend(ALLOWED_HOSTS_ENV.split(","))
+    
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
 ########## PATH CONFIGURATION
 # Absolute filesystem path to the Django project directory:
 DJANGO_ROOT = dirname(dirname(abspath(__file__)))
@@ -141,8 +147,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
-ALLOWED_HOSTS = ['.localhost', '127.0.0.1']
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
