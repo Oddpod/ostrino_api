@@ -58,7 +58,7 @@ COPY ./entrypoint.prod.sh ./entrypoint.prod.sh
 COPY . ./
 
 # chown all the files to the app user
-RUN chown -R app:app ./
+RUN chown -R app:app .
 
 # change to the app user
 USER app
