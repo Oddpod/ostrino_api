@@ -22,7 +22,6 @@ services:
       - static_volume:/home/app/web/staticfiles
     ports:
       - "80:8080"
-      - "1337:80"
     depends_on:
       - web
 
