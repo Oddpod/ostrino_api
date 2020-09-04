@@ -43,6 +43,13 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
 
+  db-init:
+    build:
+      context: .
+      dockerfile: db-init/Dockerfile
+    depends_on:
+      - db
+
 volumes:
   static_volume:
   postgres_data:
