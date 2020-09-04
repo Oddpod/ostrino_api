@@ -65,4 +65,4 @@ RUN ["chmod", "a+x", "./entrypoint.prod.sh"]
 USER app
 
 # run entrypoint.prod.sh
-# ENTRYPOINT ["./entrypoint.prod.sh"]
+ENTRYPOINT ["./entrypoint.prod.sh"]

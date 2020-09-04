@@ -1,7 +1,7 @@
 version: "3.7"
 
 services:
-  app:
+  web:
     image: "${WEB_IMAGE}"
     command: gunicorn OSTrino_API.wsgi:application --bind 0.0.0.0:8000
     volumes:
@@ -25,7 +25,7 @@ services:
       - "80:8080"
       - "1337:80"
     depends_on:
-      - app
+      - web
 
   db:
     image: "postgres:12-alpine"
