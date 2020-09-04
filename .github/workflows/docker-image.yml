@@ -7,6 +7,7 @@ on:
 env:
   WEB_IMAGE: docker.pkg.github.com/$GITHUB_REPOSITORY/web
   NGINX_IMAGE: docker.pkg.github.com/$GITHUB_REPOSITORY/nginx
+  DB_INIT_IMAGE: docker.pkg.github.com/$GITHUB_REPOSITORY/db-init
 
 jobs:
   build:
@@ -31,6 +32,7 @@ jobs:
       run: |
         echo ::set-env name=WEB_IMAGE::$(echo ${{ env.WEB_IMAGE }} | tr '[:upper:]' '[:lower:]')
         echo ::set-env name=NGINX_IMAGE::$(echo ${{ env.NGINX_IMAGE }} | tr '[:upper:]' '[:lower:]')
+        echo ::set-env name=DB_INIT_IMAGE::$(echo ${{ env.DB_INIT_IMAGE }} | tr '[:upper:]' '[:lower:]')
     - name: Log in to GitHub Packages
       run: echo ${GITHUB_TOKEN} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
       env:
@@ -39,6 +41,7 @@ jobs:
       run: |
         docker pull ${{ env.WEB_IMAGE }} --no-cache=true || true
         docker pull ${{ env.NGINX_IMAGE }} --no-cache=true|| true
+        docker pull ${{ env.DB_INIT_IMAGE }} --no-cache=true|| true
     - name: Build images
       run: |
         docker-compose -f docker-compose.ci.yml build --no-cache
@@ -46,6 +49,7 @@ jobs:
       run: |
         docker push ${{ env.WEB_IMAGE }}
         docker push ${{ env.NGINX_IMAGE }}
+        docker push ${{ env.DB_INIT_IMAGE }}
 
   deploy:
     name: Deploy to Linode
@@ -68,6 +72,7 @@ jobs:
         echo POSTGRES_DB=${{ secrets.DB_NAME }} >> .env.prod.db
         echo WEB_IMAGE=$(echo ${{ env.WEB_IMAGE }} | tr '[:upper:]' '[:lower:]') >> .env
         echo NGINX_IMAGE=$(echo ${{ env.NGINX_IMAGE }} | tr '[:upper:]' '[:lower:]') >> .env
+        echo DB_INIT_IMAGE=$(echo ${{ env.DB_INIT_IMAGE }} | tr '[:upper:]' '[:lower:]') >> .env
         echo PACKAGE_TOKEN=${{secrets.PACKAGE_TOKEN}} >> .env.prod
     - name: Add the private SSH key to the ssh-agent
       run: |
@@ -89,5 +94,6 @@ jobs:
           docker login docker.pkg.github.com -u Oddpod -p $PACKAGE_TOKEN
           docker pull $WEB_IMAGE
           docker pull $NGINX_IMAGE
+          docker pull $DB_INIT_IMAGE
           docker-compose -f docker-compose.prod.yml up -d
         ENDSSH

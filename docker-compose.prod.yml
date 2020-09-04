@@ -34,9 +34,7 @@ services:
       - postgres_data:/var/lib/postgresql/data/
   
   db-init:
-    build:
-      context: .
-      dockerfile: db-init/Dockerfile
+    image: "${DB_INIT_IMAGE}"
     depends_on:
       - db
 
