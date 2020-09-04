@@ -47,6 +47,7 @@ services:
     build:
       context: .
       dockerfile: db-init/Dockerfile
+    image: "${DB_INIT_IMAGE}"
     depends_on:
       - db
 
