@@ -59,10 +59,10 @@ COPY . ./
 
 # chown all the files to the app user
 RUN chown -R app:app .
+RUN ["chmod", "a+x", "./entrypoint.prod.sh"]
 
 # change to the app user
-# USER app
+USER app
 
 # run entrypoint.prod.sh
-RUN ["chmod", "+x", "./entrypoint.prod.sh"]
 ENTRYPOINT ["./entrypoint.prod.sh"]
