@@ -48,6 +48,11 @@ services:
       context: .
       dockerfile: db-init/Dockerfile
     image: "${DB_INIT_IMAGE}"
+    env_file:
+      - ./.env.prod
+    environment:
+      - DEBUG=0
+      - DJANGO_SETTINGS_MODULE=OSTrino_API.settings.production
     depends_on:
       - db
 
