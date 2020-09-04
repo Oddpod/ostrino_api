@@ -10,4 +10,4 @@ RUN pip install -r requirements.txt
 
 COPY . /code/
 
-CMD [ "./wait-for-postgres.sh", "db", "./startup.sh" ]
+CMD [ "/db-init/wait-for-postgres.sh", "db", "/db-init/startup.sh" ]
