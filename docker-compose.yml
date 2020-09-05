@@ -1,14 +1,50 @@
 version: "3.7"
 
 services:
-  app:
+  web:
     build:
       context: .
-    ports:
+      dockerfile: Dockerfile.prod
+    env_file:
+      - ./.env.prod
+    ports: 
       - "8000:8000"
     volumes:
       - ./:/app
-    command: sh -c "python manage.py runserver 0.0.0.0:8000 "
+      - static_volume:/home/app/web/staticfiles
+    command: gunicorn OSTrino_API.wsgi:application --bind 0.0.0.0:8000
     environment:
       - DEBUG=1
-      - DJANGO_SETTINGS_MODULE=OSTrino_API.settings.local
+      - DJANGO_SETTINGS_MODULE=OSTrino_API.settings.production
+  db:
+    image: "postgres:12-alpine"
+    env_file:
+      - ./.env.prod.db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+  
+  db-init:
+    build:
+      context: .
+      dockerfile: db-init/Dockerfile
+    env_file:
+      - ./.env.prod
+    environment:
+      - DEBUG=1
+      - DJANGO_SETTINGS_MODULE=OSTrino_API.settings.production
+    depends_on:
+      - db
+  
+  proxy:
+    build:
+      context: ./nginx
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+    ports:
+      - "80:8080"
+    depends_on:
+      - web
+
+volumes:
+  postgres_data:
+  static_volume:

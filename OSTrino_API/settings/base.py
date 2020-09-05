@@ -123,7 +123,7 @@ DATABASES = {
 
 ########## STATIC FILE CONFIGURATION
 STATIC_URL = "/staticfiles/"
-STATIC_ROOT = normpath(join(SITE_ROOT, "staticfiles"))
+STATIC_ROOT = join(SITE_ROOT, "staticfiles")
 
 ########## END STATIC FILE CONFIGURATION
 

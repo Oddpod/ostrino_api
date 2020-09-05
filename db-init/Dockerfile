@@ -12,4 +12,4 @@ COPY . /code/
 RUN ["chmod", "+x", "./db-init/startup.sh"]
 RUN ["chmod", "+x", "./db-init/wait-for-postgres.sh"]
 
-CMD [ "./db-init/wait-for-postgres.sh", "${SQL_PORT}", "./db-init/startup.sh" ]
+CMD [ "./db-init/wait-for-postgres.sh", "db", "./db-init/startup.sh" ]
