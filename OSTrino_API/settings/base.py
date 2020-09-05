@@ -18,11 +18,11 @@ DEBUG = bool(int((environ.get("DEBUG", 0))))
 
 SECRET_KEY = environ.get('SECRET_KEY', "changeme")
 
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 ALLOWED_HOSTS_ENV = environ.get('ALLOWED_HOSTS')
 if ALLOWED_HOSTS_ENV:
     ALLOWED_HOSTS.extend(ALLOWED_HOSTS_ENV.split(","))
     
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 ########## PATH CONFIGURATION
 # Absolute filesystem path to the Django project directory:
