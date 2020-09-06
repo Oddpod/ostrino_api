@@ -16,6 +16,10 @@ DATABASES = {
     }
 }
 
+CORS_ORIGIN_WHITELIST = (
+    'https://ostri.no'
+)
+
 def get_env_setting(setting):
     """ Get the environment setting or return exception """
     try:
