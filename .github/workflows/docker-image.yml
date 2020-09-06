@@ -26,6 +26,7 @@ jobs:
         echo SQL_HOST=${{ secrets.SQL_HOST }} >> .env.prod
         echo SQL_PORT=${{ secrets.SQL_PORT }} >> .env.prod
         echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env.prod
+        echo FRONTEND_ORIGIN=${{ secrets.FRONTEND_ORIGIN }} >> .env.prod
         echo POSTGRES_USER=${{ secrets.DB_USER }} >> .env.prod.db
         echo POSTGRES_PASSWORD="${{ secrets.DB_PASSWORD }}" >> .env.prod.db
         echo POSTGRES_DB=${{ secrets.DB_NAME }} >> .env.prod.db
@@ -69,6 +70,7 @@ jobs:
         echo SQL_HOST=${{ secrets.SQL_HOST }} >> .env.prod
         echo SQL_PORT=${{ secrets.SQL_PORT }} >> .env.prod
         echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env.prod
+        echo FRONTEND_ORIGIN=${{ secrets.FRONTEND_ORIGIN }} >> .env.prod
         echo POSTGRES_USER=${{ secrets.DB_USER }} >> .env.prod.db
         echo POSTGRES_PASSWORD="${{ secrets.DB_PASSWORD }}" >> .env.prod.db
         echo POSTGRES_DB=${{ secrets.DB_NAME }} >> .env.prod.db

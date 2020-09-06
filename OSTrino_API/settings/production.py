@@ -16,9 +16,9 @@ DATABASES = {
     }
 }
 
-CORS_ORIGIN_WHITELIST = (
-    'https://ostri.no'
-)
+CORS_ALLOWED_ORIGINS = [
+    environ.get('FRONTEND_ORIGIN')
+]
 
 def get_env_setting(setting):
     """ Get the environment setting or return exception """
