@@ -1,17 +1,26 @@
 #!/bin/sh
-
 set -e
+cmd="$@"
 
-if [ "$DATABASE" = "postgres" ]
-then
-    echo "Waiting for postgres..."
+function postgres_ready(){
+python << END
+import sys
+import psycopg2
+try:
+    conn = psycopg2.connect(dbname="$POSTGRES_USER", user="$POSTGRES_USER", password="$POSTGRES_PASSWORD", host="postgres")
+except psycopg2.OperationalError:
+    sys.exit(-1)
+sys.exit(0)
+END
+}
 
-    while ! nc -z $SQL_HOST $SQL_PORT; do
-      sleep 0.1
-    done
+until postgres_ready; do
+  >&2 echo "Postgres is unavailable - sleeping"
+  sleep 1
+done
 
-    echo "PostgreSQL started"
-fi
+>&2 echo "Postgres is up - continuing..."
+exec $cmd
 
 python3 manage.py collectstatic --noinput
 exec "$@"
