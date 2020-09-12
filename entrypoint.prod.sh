@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 cmd="$@"
 
-function postgres_ready(){
+postgres_ready(){
 python << END
 import sys
 import psycopg2
