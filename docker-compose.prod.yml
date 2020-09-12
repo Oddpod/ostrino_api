@@ -37,6 +37,7 @@ services:
     image: "${DB_INIT_IMAGE}"
     env_file:
       - ./.env.prod
+      - ./.env.prod.db
     environment:
       - DEBUG=0
       - DJANGO_SETTINGS_MODULE=OSTrino_API.settings.production
