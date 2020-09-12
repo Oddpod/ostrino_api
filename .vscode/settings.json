@@ -4,6 +4,6 @@
     "files.watcherExclude": {
         "**/env/**": true
     },
-    "python.pythonPath": "C:\\Users\\osande\\AppData\\Local\\Programs\\Python\\Python38-32\\python.exe",
+    "python.pythonPath": "/usr/bin/python3",
     "files.eol": "\n"
 }

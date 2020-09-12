@@ -15,7 +15,7 @@ services:
       - DEBUG=0
       - DJANGO_SETTINGS_MODULE=OSTrino_API.settings.production
     depends_on:
-      - db
+      - postgres
 
   proxy:
     image: "${NGINX_IMAGE}"
@@ -26,7 +26,7 @@ services:
     depends_on:
       - web
 
-  db:
+  postgres:
     image: "postgres:12-alpine"
     env_file:
       - ./.env.prod.db
@@ -42,7 +42,7 @@ services:
       - DEBUG=0
       - DJANGO_SETTINGS_MODULE=OSTrino_API.settings.production
     depends_on:
-      - db
+      - postgres
 
 volumes:
   static_volume:
